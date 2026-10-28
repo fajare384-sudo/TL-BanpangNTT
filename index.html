@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pemantauan Tindak Lanjut Gagal Salur & Retur Beras NTT</title>
+<meta name="description" content="Pemantauan publik tindak lanjut dan konfirmasi temuan gagal salur dan retur beras bantuan pangan NTT oleh Dinas Ketahanan Pangan, Transporter dan Bulog. Inspektorat Badan Pangan Nasional.">
+<style>
+:root{
+  --bg:#f5f6f4; --surface:#ffffff; --surface2:#eef1ee; --ink:#14201c; --muted:#5b6761; --line:#d8ded9;
+  --brand:#0b5d4b; --brand-ink:#ffffff; --brand-soft:#d9efe8;
+  --ok:#17794a; --ok-soft:#dcf3e6; --info:#1d5fb4; --info-soft:#dde9fa; --warn:#9a5b00; --warn-soft:#fbe9c8;
+  --bad:#b3261e; --bad-soft:#fbdedb; --idle:#6c7570; --idle-soft:#e6e9e7;
+  --p-kab:#1d5fb4; --p-prov:#6b46c1; --p-tr:#b45309; --p-bul:#0b7285;
+  --radius:14px; --shadow:0 1px 2px rgba(20,32,28,.06),0 4px 14px rgba(20,32,28,.05);
+}
+:root[data-theme="dark"]{
+  --bg:#0f1512; --surface:#18211d; --surface2:#202b26; --ink:#e8efeb; --muted:#9aa8a0; --line:#2c3a34;
+  --brand:#4cc3a3; --brand-ink:#06251d; --brand-soft:#173a30;
+  --ok:#5ed39a; --ok-soft:#143626; --info:#7db2ff; --info-soft:#15294a; --warn:#f0b553; --warn-soft:#3b2a0c;
+  --bad:#ff8f86; --bad-soft:#4a1a17; --idle:#97a39d; --idle-soft:#26312c;
+  --p-kab:#7db2ff; --p-prov:#b79bff; --p-tr:#f0a35a; --p-bul:#5fd0e3; --shadow:none;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0f1512; --surface:#18211d; --surface2:#202b26; --ink:#e8efeb; --muted:#9aa8a0; --line:#2c3a34;
+    --brand:#4cc3a3; --brand-ink:#06251d; --brand-soft:#173a30;
+    --ok:#5ed39a; --ok-soft:#143626; --info:#7db2ff; --info-soft:#15294a; --warn:#f0b553; --warn-soft:#3b2a0c;
+    --bad:#ff8f86; --bad-soft:#4a1a17; --idle:#97a39d; --idle-soft:#26312c;
+    --p-kab:#7db2ff; --p-prov:#b79bff; --p-tr:#f0a35a; --p-bul:#5fd0e3; --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;-webkit-text-size-adjust:100%}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px 56px}
+h1,h2,h3{line-height:1.2;margin:0}
+h2{font-size:20px;margin-bottom:4px}
+.sub{color:var(--muted);font-size:13.5px;margin:0 0 14px}
+button,select,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:var(--info)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+:focus-visible{outline:3px solid var(--info);outline-offset:2px;border-radius:6px}
+
+/* header */
+.top{background:var(--brand);color:var(--brand-ink)}
+:root[data-theme="dark"] .top{background:#10372d;color:#e8efeb}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .top{background:#10372d;color:#e8efeb}}
+.top .wrap{padding-top:22px;padding-bottom:22px;display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;justify-content:space-between}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.85;margin-bottom:6px}
+.top h1{font-size:clamp(21px,3.2vw,30px);max-width:760px}
+.top p{margin:8px 0 0;max-width:720px;opacity:.92;font-size:14px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;min-height:36px}
+.btn:hover{background:var(--surface2)}
+.btn.pri{background:var(--brand);color:var(--brand-ink);border-color:transparent}
+.top .btn{background:rgba(255,255,255,.14);color:inherit;border-color:rgba(255,255,255,.35)}
+.top .btn:hover{background:rgba(255,255,255,.24)}
+.btn[aria-pressed="true"]{outline:2px solid currentColor}
+
+.banner{margin:16px 0 0;padding:12px 14px;border-radius:var(--radius);background:var(--info-soft);color:var(--ink);border:1px solid var(--line);font-size:13.5px}
+.window{margin-top:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+.window .big{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;white-space:nowrap}
+.pill.ok{background:var(--ok-soft);color:var(--ok)} .pill.info{background:var(--info-soft);color:var(--info)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)} .pill.bad{background:var(--bad-soft);color:var(--bad)}
+.pill.idle{background:var(--idle-soft);color:var(--idle)}
+
+section{margin-top:30px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:12px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.kpi .v{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.kpi .l{font-size:12.5px;color:var(--muted);margin-top:2px}
+.kpi .n{font-size:12px;color:var(--muted);margin-top:6px}
+
+/* party cards */
+.parties{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+.party{border-top:4px solid var(--c);cursor:pointer;text-align:left;width:100%;background:var(--surface);border-left:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+.party[aria-pressed="true"]{outline:2px solid var(--c);outline-offset:-1px}
+.party .nm{font-weight:700;color:var(--c);font-size:14px}
+.party .ct{font-size:12.5px;color:var(--muted)}
+.party .big{font-size:28px;font-weight:700;font-variant-numeric:tabular-nums}
+.bar{display:flex;height:10px;border-radius:999px;overflow:hidden;background:var(--idle-soft);margin:8px 0 6px}
+.bar i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--muted)}
+.legend b{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;vertical-align:baseline}
+.s-belum{background:#9aa39e}.s-dijawab{background:var(--info)}.s-kurang{background:#e0a02c}.s-terverifikasi{background:var(--ok)}
+
+/* timeline */
+.tl{position:relative;display:grid;grid-template-columns:repeat(8,1fr);gap:0;margin-top:6px}
+.tl .d{position:relative;text-align:center;padding-top:26px;font-size:12px;color:var(--muted)}
+.tl .d::before{content:"";position:absolute;top:8px;left:0;right:0;height:3px;background:var(--line)}
+.tl .d:first-child::before{left:50%}.tl .d:last-child::before{right:50%}
+.tl .d::after{content:"";position:absolute;top:2px;left:50%;width:15px;height:15px;margin-left:-7px;border-radius:50%;background:var(--surface);border:3px solid var(--line)}
+.tl .d.past::before{background:var(--brand)}.tl .d.past::after{border-color:var(--brand)}
+.tl .d.today::after{background:var(--brand);box-shadow:0 0 0 5px var(--brand-soft)}
+.tl .d b{display:block;color:var(--ink);font-size:13px}
+.tl .d.ms b{color:var(--brand)}
+.tl .d .m{display:block;margin-top:2px;line-height:1.25;min-height:30px}
+@media (max-width:760px){
+  .tl{grid-template-columns:1fr;gap:0}
+  .tl .d{text-align:left;padding:2px 0 14px 34px;min-height:44px}
+  .tl .d::before{top:0;bottom:0;left:7px;right:auto;width:3px;height:auto}
+  .tl .d:first-child::before{top:8px;left:7px}.tl .d:last-child::before{bottom:auto;height:12px;right:auto}
+  .tl .d::after{top:3px;left:0;margin-left:0}
+  .tl .d .m{min-height:0}
+}
+
+/* sop steps */
+.steps{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.step{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+.step[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
+.step .no{flex:none;width:28px;height:28px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font-weight:700;font-size:13px}
+.step b{display:block;font-size:13.5px}.step span{font-size:12.5px;color:var(--muted)}
+
+/* kab table */
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th,.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;vertical-align:middle;font-variant-numeric:tabular-nums}
+.tbl th:first-child,.tbl td:first-child{text-align:left}
+.tbl td:nth-child(2){white-space:nowrap;text-align:left}.tbl .chip{white-space:nowrap}
+.tbl th{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.03em}
+.tbl tfoot td{font-weight:700;border-bottom:none}
+.scroll{overflow-x:auto}
+.mini{display:flex;height:8px;border-radius:99px;overflow:hidden;background:var(--idle-soft);min-width:120px}
+.mini i{display:block}
+.c-tr{background:var(--p-tr)}.c-nt{background:var(--p-bul)}.c-th{background:repeating-linear-gradient(45deg,var(--p-bul),var(--p-bul) 3px,transparent 3px,transparent 6px)}
+
+/* filters */
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600}
+.chip[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:transparent}
+.field{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:7px 10px;min-height:36px}
+input.field{min-width:200px;flex:1}
+
+/* items */
+.item{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--c);border-radius:12px;margin-bottom:10px;box-shadow:var(--shadow)}
+.item>summary{list-style:none;cursor:pointer;padding:12px 14px;display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:center}
+.item>summary::-webkit-details-marker{display:none}
+.item .t{font-weight:650;font-size:14.5px}
+.item .meta{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;font-size:12.5px;color:var(--muted);margin-top:3px}
+.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;color:var(--c)}
+.item[open]>summary{border-bottom:1px solid var(--line)}
+.item .body{padding:14px;display:grid;gap:14px}
+.item .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.lab{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;margin-bottom:3px}
+.ev{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.ev li{display:flex;gap:8px;align-items:flex-start;justify-content:space-between;background:var(--surface2);border-radius:9px;padding:8px 10px;font-size:13.5px}
+.ev .st{flex:none}
+.ans{background:var(--surface2);border-radius:10px;padding:10px 12px;font-size:14px;white-space:pre-wrap}
+.note{font-size:12.5px;color:var(--muted)}
+.late{color:var(--bad);font-weight:700}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+
+/* admin */
+.adm{border:1px dashed var(--brand);border-radius:12px;padding:12px;display:grid;gap:10px;background:color-mix(in srgb,var(--brand-soft) 45%,transparent)}
+.adm label{display:grid;gap:3px;font-size:12.5px;font-weight:600}
+.adm .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.adm textarea{min-height:70px;resize:vertical}
+.evrow{display:grid;grid-template-columns:2fr 1fr 2fr auto;gap:8px;align-items:center;font-size:13px}
+.evrow .nm{font-weight:600}
+@media (max-width:760px){.evrow{grid-template-columns:1fr}}
+.adminbar{position:sticky;top:0;z-index:20;background:var(--warn-soft);color:var(--ink);border-bottom:1px solid var(--line)}
+.adminbar .wrap{padding-top:8px;padding-bottom:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+[hidden]{display:none!important}
+
+/* belu */
+.bl{display:grid;gap:8px}
+.blrow{display:grid;grid-template-columns:70px 1fr;gap:10px;align-items:center;font-size:13.5px}
+.blbar{height:22px;border-radius:6px;background:var(--p-tr);color:#fff;display:flex;align-items:center;padding:0 8px;font-size:12px;font-weight:700;min-width:36px}
+.blbar.barat{background:var(--p-prov)}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:4px 9px;font-size:12.5px}
+.upl{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:10px;background:var(--surface2)}
+.upl .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.upl label{display:grid;gap:3px;font-size:12.5px;font-weight:600}
+.upl .go{justify-self:start}
+.upl[aria-disabled="true"]{opacity:.6}
+.msg{font-size:13px;padding:8px 10px;border-radius:8px}
+.msg.ok{background:var(--ok-soft);color:var(--ok)}.msg.bad{background:var(--bad-soft);color:var(--bad)}.msg.info{background:var(--info-soft);color:var(--info)}
+.mini-btn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;color:var(--brand)}
+footer{margin-top:40px;color:var(--muted);font-size:12.5px;display:grid;gap:6px}
+@media print{.tools,.adminbar,.filters{display:none}.item{break-inside:avoid}.item .body{display:grid}}
+</style>
+</head>
+<body>
+<div class="adminbar" id="adminbar" hidden>
+  <div class="wrap">
+    <strong>Mode Admin APIP</strong>
+    <span class="note">Perubahan tersimpan sebagai draf di peramban ini. Unduh JSON lalu commit ke <code>data/tindak-lanjut.json</code> agar tayang ke publik.</span>
+    <button class="btn pri" id="btnExport">Unduh JSON</button>
+    <label class="btn" style="cursor:pointer">Impor JSON<input type="file" id="fileImport" accept="application/json" class="sr"></label>
+    <button class="btn" id="btnReset">Hapus draf</button>
+    <span id="draftState" class="note"></span>
+  </div>
+</div>
+
+<header class="top">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Inspektorat · Badan Pangan Nasional</div>
+      <h1>Pemantauan Tindak Lanjut &amp; Konfirmasi Gagal Salur dan Retur Beras Bantuan Pangan NTT</h1>
+      <p>Status jawaban dan bukti dukung dari Dinas Ketahanan Pangan Kabupaten/Kota, Dinas Ketahanan Pangan Provinsi, Transporter, dan Perum BULOG. Periode Bantuan Pangan Beras Juli–September 2026.</p>
+    </div>
+    <div class="tools">
+      <button class="btn" id="btnTheme" aria-label="Ganti tema terang atau gelap">Tema</button>
+      <button class="btn" onclick="window.print()">Cetak</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="banner" role="note"><strong>Catatan:</strong> <span id="catatan"></span></div>
+
+  <div class="window" id="window" aria-live="polite"></div>
+
+  <section aria-labelledby="h-ring">
+    <h2 id="h-ring">Ringkasan temuan</h2>
+    <p class="sub">Tujuh kabupaten fokus di Pulau Flores (surat Gubernur NTT dan jawaban Bapanas 8 Oktober 2026).</p>
+    <div class="grid kpis" id="kpis"></div>
+  </section>
+
+  <section aria-labelledby="h-par">
+    <h2 id="h-par">Progres tindak lanjut per pihak</h2>
+    <p class="sub">Pilih kartu untuk menyaring daftar butir di bawah.</p>
+    <div class="grid parties" id="parties"></div>
+  </section>
+
+  <section aria-labelledby="h-tl">
+    <h2 id="h-tl">Jendela pemantauan H+7</h2>
+    <p class="sub">Tenggat jawaban dihitung dari tanggal surat konfirmasi dikirim (H+0). Pemantauan ditutup pada H+7.</p>
+    <div class="card"><div class="tl" id="timeline"></div></div>
+  </section>
+
+  <section aria-labelledby="h-kab">
+    <h2 id="h-kab">Sebaran per kabupaten</h2>
+    <p class="sub">Gagal salur dan nilai yang dikonfirmasi (Rp). Pilih baris untuk menyaring butir pada kabupaten tersebut.</p>
+    <div class="card scroll"><table class="tbl" id="kabTbl"></table></div>
+  </section>
+
+  <section aria-labelledby="h-sop">
+    <h2 id="h-sop">Tahapan penanganan gagal salur dan retur</h2>
+    <p class="sub">Pilih tahap untuk menyaring butir.</p>
+    <div class="grid steps" id="steps"></div>
+  </section>
+
+  <section aria-labelledby="h-list">
+    <h2 id="h-list">Daftar tindak lanjut dan konfirmasi</h2>
+    <p class="sub" id="listSub"></p>
+    <div class="filters" id="filters"></div>
+    <div id="list"></div>
+  </section>
+
+  <footer>
+    <div><strong>Sumber data:</strong> <span id="sumber"></span></div>
+    <div>Data diperbarui: <span id="upd"></span>. Nilai non-transporter dan transporter ditampilkan terpisah dan tidak dijumlahkan karena masih ada potensi tumpang tindih yang sedang direkonsiliasi.</div>
+    <div>Jawaban dan bukti baru tampil ke publik setelah diverifikasi dan disetujui Admin APIP. Berkas yang diunggah pihak terkait dikirim langsung ke email Inspektorat dan tidak disimpan di halaman ini.</div>
+  </footer>
+</main>
+
+<iframe name="upl-frame" id="upl-frame" title="Pengiriman bukti" hidden></iframe>
+<script>
+const EMBEDDED = {"meta": {"judul": "Pemantauan Tindak Lanjut & Konfirmasi Gagal Salur dan Retur Beras Bantuan Pangan NTT", "periode": "Bantuan Pangan Beras Juli–September 2026", "t0": "2026-10-28", "jendela_hari": 7, "diperbarui": "2026-10-28", "sumber": ["Analisis Transporter 7 Kab. Flores (verifikasi dokumen 22 Okt 2026; gagal salur 18 Okt 2026)", "Analisis Non-Transporter 7 Kab. Flores", "Catatan dokumen pada paparan cross-check (27 Okt 2026)"], "catatan": "Angka merupakan indikasi untuk konfirmasi, bukan kesimpulan pelanggaran. Keputusan tolak/koreksi berada pada reviu APIP dan pimpinan."}, "ringkasan": {"desa": 853, "pbp": 178041, "tolak_tr": 681647723, "nt_tolak": 57467338, "nt_tahan": 128971328, "nt_porsi": 186438666, "tagihan_tr": 1770809947, "nt_ditagih": 821394069}, "kabupaten": [{"nama": "Manggarai", "kc": "KC Ruteng", "desa": 171, "pbp": 59963, "persen": 0.9969, "tagihan_tr": 15036758, "tolak_tr": 19021529, "tambahan_tr": 17072383, "nt_ditagih": 35896988, "nt_porsi_gagal": 35787154, "nt_tolak": 0, "nt_tahan": 35787154}, {"nama": "Manggarai Timur", "kc": "KC Ruteng", "desa": 126, "pbp": 41202, "persen": 0.7439, "tagihan_tr": 273083942, "tolak_tr": 207076124, "tambahan_tr": 205736819, "nt_ditagih": 106793890, "nt_porsi_gagal": 25108806, "nt_tolak": 0, "nt_tahan": 25108806}, {"nama": "Manggarai Barat", "kc": "KC Labuan Bajo", "desa": 160, "pbp": 32548, "persen": 0.725, "tagihan_tr": 221571243, "tolak_tr": 163972309, "tambahan_tr": 162914310, "nt_ditagih": 84173615, "nt_porsi_gagal": 41790974, "nt_tolak": 22854450, "nt_tahan": 18936525}, {"nama": "Ende", "kc": "KC Ende", "desa": 164, "pbp": 22791, "persen": 0.4525, "tagihan_tr": 389350970, "tolak_tr": 183538602, "tambahan_tr": 182797762, "nt_ditagih": 181253399, "nt_porsi_gagal": 36600900, "nt_tolak": 16292097, "nt_tahan": 20308803}, {"nama": "Nagekeo", "kc": "KC Bajawa", "desa": 107, "pbp": 17489, "persen": 0.8351, "tagihan_tr": 48411348, "tolak_tr": 42013924, "tambahan_tr": 39191804, "nt_ditagih": 65882984, "nt_porsi_gagal": 30818951, "nt_tolak": 4093957, "nt_tahan": 26724994}, {"nama": "Sikka", "kc": "KC Maumere", "desa": 50, "pbp": 3633, "persen": 0.0847, "tagihan_tr": 619728992, "tolak_tr": 55161428, "tambahan_tr": 55043335, "nt_ditagih": 196637671, "nt_porsi_gagal": 14345419, "nt_tolak": 12893764, "nt_tahan": 1451656}, {"nama": "Ngada", "kc": "KC Bajawa", "desa": 75, "pbp": 415, "persen": 0.0278, "tagihan_tr": 203626694, "tolak_tr": 10863806, "tambahan_tr": 10850316, "nt_ditagih": 150755522, "nt_porsi_gagal": 1986462, "nt_tolak": 1333071, "nt_tahan": 653391}], "komponen_tr": [{"nama": "Petugas Gudang", "tagihan": 27000000, "porsi_gagal": 12910485, "tolak": 12910485, "dasar": "Biaya tetap Rp4,5 jt/kab.; tanpa bukti rekap pemuatan/SO/BAST pada desa gagal."}, {"nama": "Armada Angkutan", "tagihan": 1463867800, "porsi_gagal": 533121927, "tolak": 533121927, "dasar": "Tidak ada rekap kg & BAST per desa; barang tidak sampai ke PBP; penyaluran tidak diperpanjang Bapanas."}, {"nama": "Asuransi", "tagihan": 72394247, "porsi_gagal": 44510250, "tolak": 44510250, "dasar": "Premi berbasis alokasi (Rp250/PBP) atas barang yang tidak tersalur → koreksi/refund (endorsement)."}, {"nama": "Kamsih", "tagihan": 57000000, "porsi_gagal": 32850000, "tolak": 32850000, "dasar": "Tarif Rp75.000/desa; desa tertagih ≤ desa gagal pada Manggarai Barat, Manggarai Timur, Nagekeo."}, {"nama": "Buruh Bongkar", "tagihan": 150547900, "porsi_gagal": 46286949, "tolak": 46286949, "dasar": "Upah bongkar berbasis volume; tidak ada bongkar-muat ke PBP pada desa gagal."}, {"nama": "Gudang Transit", "tagihan": 0, "porsi_gagal": 0, "tolak": 0, "dasar": "Tidak ada tagihan berjenis ini (Rp0)."}, {"nama": "Perawatan", "tagihan": 0, "porsi_gagal": 0, "tolak": 0, "dasar": "Tidak ada tagihan berjenis ini (Rp0)."}, {"nama": "Pendukung", "tagihan": 11968112, "porsi_gagal": 11968112, "tolak": 11968112, "dasar": "Biaya provinsi (ADM, ATK, materai, sewa) dialokasikan menurut porsi PBP gagal; sebagian sudah ditolak APIP."}], "komponen_nt": [{"nama": "Petugas Pelaksana (Titik Bagi)", "porsi_gagal": 47154559, "tolak": 47154559, "tahan": 0, "tindakan": "Tolak: koreksi nilai tagihan; potong/kembalikan UM", "bukti": "Daftar titik bagi & BAST per desa, daftar PBP menerima, rekap bayar honor, dokumen yang membuktikan kecamatan tertagih"}, {"nama": "Petugas Administrasi Desa/Kel.", "porsi_gagal": 228539, "tolak": 228539, "tahan": 0, "tindakan": "Tolak", "bukti": "BAST/daftar bayar PBP per desa; daftar petugas administrasi desa"}, {"nama": "Koordinator Kecamatan", "porsi_gagal": 3723594, "tolak": 3723594, "tahan": 0, "tindakan": "Tolak", "bukti": "SK/daftar korcam per kecamatan, laporan kegiatan"}, {"nama": "Petugas Pendamping Desa/Kel.", "porsi_gagal": 6360647, "tolak": 6360647, "tahan": 0, "tindakan": "Tolak", "bukti": "Daftar pendamping per desa, laporan pendampingan, surat tugas"}, {"nama": "Koordinasi Rencana Salur & Cek Kualitas", "porsi_gagal": 6321349, "tolak": 0, "tahan": 6321349, "tindakan": "Tahan; konfirmasi", "bukti": "Notulen/undangan rapat koordinasi, daftar hadir, bukti cek kualitas dan rencana salur"}, {"nama": "Biaya Pendukung (ATK, Atribut, Adm/Lembur)", "porsi_gagal": 43905479, "tolak": 0, "tahan": 43905479, "tindakan": "Tahan; konfirmasi duplikasi dengan biaya pendukung transporter", "bukti": "Nota/kuitansi ATK, atribut, lembur; bukti pemakaian"}, {"nama": "Sosialisasi, Monitoring & Evaluasi", "porsi_gagal": 78744500, "tolak": 0, "tahan": 78744500, "tindakan": "Tahan; konfirmasi manfaat bagi desa gagal", "bukti": "Foto/daftar hadir sosialisasi & launching, laporan monev, dasar pembebanan evaluasi Kanwil"}], "items": [{"id": "T-01", "pihak": "TRANSPORTER", "judul": "Posisi fisik beras gagal salur per desa (853 desa)", "jenis": "gagal_salur", "tahap": 1, "kab": [], "prioritas": "Tinggi", "h": 3, "nilai": 681647723, "dasar": "Umum — 853 desa/kel. gagal salur di 7 kab.", "pertanyaan": "Apakah beras gagal salur sudah tiba di titik bagi atau masih di gudang/armada? Mohon posisi fisik per 30 Sep 2026 dan saat ini, serta alasan per desa.", "bila_tidak": "Porsi wilayah gagal ditolak", "rujukan": "F-01", "bukti": [{"nama": "Stok opname/posisi fisik per kab. & desa", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "BAST titik bagi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "SPM/SO/OUT gudang", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "foto/berita acara kondisi lapangan", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "T-02", "pihak": "TRANSPORTER", "judul": "Dasar penerbitan tagihan setelah gempa 15 Agu & batas 30 Sep", "jenis": "biaya", "tahap": 4, "kab": [], "prioritas": "Tinggi", "h": 3, "nilai": null, "dasar": "Umum — 7 kab. fokus", "pertanyaan": "Atas dasar apa JPL menerbitkan tagihan 4 Sep–8 Okt 2026 setelah gempa 15 Agu dan setelah batas 30 Sep? Apakah ada pemberitahuan keadaan kahar resmi ke Bulog sebelum tagihan?", "bila_tidak": "Tidak ada pengecualian atas batas 30 Sep", "rujukan": "F-02, F-05", "bukti": [{"nama": "Surat pemberitahuan keadaan kahar", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "korespondensi dengan Bulog Kanwil/KC", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "keputusan penjadwalan ulang bila ada", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "T-03", "pihak": "TRANSPORTER", "judul": "Status beras gagal salur: gudang atau dialihkan ke bantuan bencana", "jenis": "retur", "tahap": 2, "kab": [], "prioritas": "Tinggi", "h": 5, "nilai": null, "dasar": "Umum — Beras gagal salur 7 kab.", "pertanyaan": "Apakah beras gagal salur dikembalikan ke gudang atau dialihkan ke bantuan bencana (sesuai arahan Bapanas 8 Okt)? Pastikan biaya angkut yang sama tidak ditagih ke BP dan ke skema bencana.", "bila_tidak": "Tagihan ditahan sampai kejelasan peruntukan", "rujukan": "F-02", "bukti": [{"nama": "Dokumen alih peruntukan/penarikan", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "BA pengembalian", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "pernyataan tidak ada pembebanan ganda", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "T-04", "pihak": "TRANSPORTER", "judul": "Armada angkutan: volume, rute, desa tujuan, BAST titik bagi", "jenis": "biaya", "tahap": 4, "kab": ["Ende", "Manggarai Barat", "Manggarai Timur", "Nagekeo", "Sikka", "Ngada"], "prioritas": "Tinggi", "h": 5, "nilai": 533121927, "dasar": "Armada Angkutan — Ende (dok. 31–33), Manggarai Barat (46–48), Manggarai Timur (51), Nagekeo (54), Sikka (62–64), Ngada (117)", "pertanyaan": "Volume (kg), rute, dan desa tujuan tiap dokumen? Dasar tarif per kg/rute? Bukti barang sampai titik bagi (bukan hanya gudang/pelabuhan)?", "bila_tidak": "Porsi wilayah gagal ditolak; sisa ditahan sampai rekonsiliasi", "rujukan": "F-04", "bukti": [{"nama": "Rekap kg per kab./rute", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "surat jalan & SPM", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "BAST titik bagi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "kontrak/perikatan vendor & tarif", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "bukti bayar vendor", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "bukti potong PPh", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Lampiran 1 (13 dok.) dan Lampiran 2 dok. 33", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "T-05", "pihak": "TRANSPORTER", "judul": "Trucking Manggarai Timur terbit 30 Sep (Rp241,7 jt)", "jenis": "biaya", "tahap": 4, "kab": ["Manggarai Timur"], "prioritas": "Tinggi", "h": 5, "nilai": 179834947, "dasar": "Armada Angkutan — Manggarai Timur dok. 51 (30-09-2026, Rp241,7 jt)", "pertanyaan": "Mengapa trucking Matim diterbitkan 30 Sep, dua hari setelah Pemda menyatakan penyaluran belum selesai (surat 28 Sep)? Berapa kg yang benar-benar tersalur ke PBP?", "bila_tidak": "Porsi gagal ditolak", "rujukan": "F-05", "bukti": [{"nama": "Rekap realisasi kg vs alokasi per desa", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "BAST PBP", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "daftar desa tertagih", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "T-06", "pihak": "TRANSPORTER", "judul": "Asuransi: premi atas alokasi, endorsement/refund, klaim gempa", "jenis": "biaya", "tahap": 4, "kab": [], "prioritas": "Tinggi", "h": 5, "nilai": 44510250, "dasar": "Asuransi — Manggarai (dok. 26) & 6 kab. lain (17, 20, 27–30)", "pertanyaan": "Premi atas alokasi atau realisasi? Apakah polis dapat di-endorse/refund untuk volume tidak tersalur? Apakah ada klaim kerugian akibat gempa?", "bila_tidak": "Porsi premi atas volume tidak tersalur ditolak", "rujukan": "F-03, F-07", "bukti": [{"nama": "Polis/sertifikat", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "nilai pertanggungan & rate", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "bukti bayar premi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "permohonan endorsement/refund", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "file perikatan", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "data klaim", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "T-07", "pihak": "TRANSPORTER", "judul": "Kamsih: desa tertagih lebih sedikit dari desa gagal salur", "jenis": "biaya", "tahap": 4, "kab": ["Manggarai Barat", "Manggarai Timur", "Nagekeo"], "prioritas": "Tinggi", "h": 5, "nilai": 32850000, "dasar": "Kamsih — Manggarai Barat (7), Manggarai Timur (4), Nagekeo (6), Ende (1), Sikka (59), Ngada (114)", "pertanyaan": "Desa tertagih lebih sedikit dari desa gagal salur di tiga kab. Desa mana saja yang dilayani? Bukti kehadiran petugas?", "bila_tidak": "Tagihan Kamsih pada desa gagal ditolak", "rujukan": "F-06", "bukti": [{"nama": "Daftar nama desa tertagih per kab", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "SK/penugasan", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "absensi/log", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "bukti bayar", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "T-08", "pihak": "TRANSPORTER", "judul": "Buruh bongkar: dasar lumpsum & tarif", "jenis": "biaya", "tahap": 4, "kab": ["Nagekeo", "Ngada", "Manggarai Timur", "Manggarai Barat"], "prioritas": "Tinggi", "h": 5, "nilai": 58374817, "dasar": "Buruh Bongkar — Nagekeo (52), Ngada (115), Manggarai Timur (49), Manggarai Barat (44), Ende (42), Sikka (60)", "pertanyaan": "Dasar lumpsum; mengapa SPK Nagekeo di luar periode Feb–Mar 2026; dasar tarif Ngada (±Rp2.010/PBP); mengapa tarif Matim/Mabar jauh di bawah kab. lain (tagihan parsial?).", "bila_tidak": "Porsi gagal ditolak; koreksi ke benchmark Rp1.200/PBP", "rujukan": "F-08, F-09", "bukti": [{"nama": "SPK", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "daftar penerima upah", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "volume bongkar per desa/titik", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "perhitungan lumpsum", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "bukti bayar", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "T-09", "pihak": "TRANSPORTER", "judul": "Petugas gudang: dasar tarif tetap Rp4,5 jt/kab.", "jenis": "biaya", "tahap": 4, "kab": [], "prioritas": "Sedang", "h": 5, "nilai": 12910485, "dasar": "Petugas Gudang — Ende (43), Manggarai Barat (45), Manggarai Timur (50), Nagekeo (53), Sikka (61), Ngada (116)", "pertanyaan": "Dasar tarif tetap Rp4,5 jt/kab.; identitas petugas, gudang/titik, dan bukti kegiatan.", "bila_tidak": "Porsi wilayah gagal ditolak", "rujukan": "F-10", "bukti": [{"nama": "SK penugasan", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "rekap harian pemuatan (SO/OUT/SPM/BAST)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "bukti bayar", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Lampiran 1 untuk dokumen yang belum ada", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "T-10", "pihak": "TRANSPORTER", "judul": "Gudang transit & perawatan: konfirmasi tidak ada tagihan", "jenis": "biaya", "tahap": 4, "kab": [], "prioritas": "Rendah", "h": 5, "nilai": null, "dasar": "Gudang Transit & Perawatan — 7 kab. fokus", "pertanyaan": "Mohon konfirmasi tidak ada biaya gudang transit/perawatan yang akan ditagihkan atas desa gagal, atau rinciannya.", "bila_tidak": "Tidak diterima bila ditagih tanpa bukti", "rujukan": "F-09", "bukti": [{"nama": "Surat pernyataan/rincian biaya beserta bukti", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "T-11", "pihak": "TRANSPORTER", "judul": "Tagihan susulan atas wilayah gagal salur", "jenis": "biaya", "tahap": 4, "kab": ["Manggarai", "Manggarai Timur", "Manggarai Barat", "Nagekeo", "Ende"], "prioritas": "Tinggi", "h": 3, "nilai": null, "dasar": "Tagihan susulan — Manggarai (hanya asuransi), Matim, Mabar, Nagekeo, Ende", "pertanyaan": "Apakah akan ada tagihan lanjutan? Mohon jadwal dan basis (kg/PBP/desa). Tagihan atas penyaluran setelah 30 Sep tidak dapat diakui sebagai BP Jul–Sep.", "bila_tidak": "Tagihan susulan atas wilayah gagal tidak diproses", "rujukan": "F-09", "bukti": [{"nama": "Rencana tagihan lanjutan", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "plafon vs realisasi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "tanggal serah terima", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "T-12", "pihak": "TRANSPORTER", "judul": "Biaya pendukung provinsi: kelengkapan dokumen", "jenis": "biaya", "tahap": 4, "kab": [], "prioritas": "Sedang", "h": 7, "nilai": 11968112, "dasar": "Biaya pendukung provinsi — dalam reviu APIP", "pertanyaan": "Mohon dasar pembebanan dan kelengkapan dokumen biaya pendukung provinsi (detail disampaikan melalui surat resmi).", "bila_tidak": "Mengikuti hasil reviu APIP", "rujukan": "F-11", "bukti": [{"nama": "Perikatan dan bukti kelengkapan dokumen sesuai surat resmi", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": false, "judul_publik": "Biaya pendukung provinsi: kelengkapan dokumen"}, {"id": "T-13", "pihak": "TRANSPORTER", "judul": "Kelengkapan pajak (bupot PPh), perikatan & lampiran", "jenis": "biaya", "tahap": 4, "kab": [], "prioritas": "Rendah", "h": 7, "nilai": null, "dasar": "Perpajakan & kelengkapan — Seluruh dokumen kab. fokus", "pertanyaan": "Mengapa bupot hanya ada pada dokumen kepulauan (Truk PEL-TD/perahu)? Mohon lengkapi perikatan & lampiran.", "bila_tidak": "Dokumen ditahan sampai lengkap", "rujukan": "F-04, F-07", "bukti": [{"nama": "Bupot PPh", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "perikatan (asuransi/pendukung)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Lampiran 1/2", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "B-01", "pihak": "BULOG", "judul": "KC Ruteng – Manggarai: tagihan KC-level & sosialisasi/launching", "jenis": "biaya", "tahap": 4, "kab": ["Manggarai"], "prioritas": "Sedang", "h": 5, "nilai": 35787154, "dasar": "Biaya non-transporter (dikelola Bulog dan satgas/petugas lapangan) atas wilayah gagal salur — Rp35.787.154 dari Rp35.896.988 ditagihkan.", "pertanyaan": "Mengapa tidak ada tagihan petugas pelaksana/pendamping/korcam padahal seluruh PBP dilaporkan gagal salur? Jelaskan dasar biaya sosialisasi/launching Rp10,7 juta dan ATK/atribut.", "bila_tidak": "Usulan tolak/tahan berlaku sesuai analisis; UM dikembalikan atau dipotong", "rujukan": "Analisis Non-Transporter: Tindak Lanjut B; Rekap Kab x Komp", "bukti": [{"nama": "Daftar titik bagi & BAST per desa, daftar PBP menerima, rekap bayar honor, dokumen yang membuktikan kecamatan tertagih", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Bukti pembayaran honor dan nilai yang dapat dikembalikan", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "B-02", "pihak": "BULOG", "judul": "KC Ruteng – Manggarai Timur: titik bagi Lamba Leda Selatan/Utara & Elar", "jenis": "biaya", "tahap": 4, "kab": ["Manggarai Timur"], "prioritas": "Tinggi", "h": 5, "nilai": 25108806, "dasar": "Biaya non-transporter (dikelola Bulog dan satgas/petugas lapangan) atas wilayah gagal salur — Rp25.108.806 dari Rp106.793.890 ditagihkan.", "pertanyaan": "Dasar penagihan titik bagi pada Kec. Lamba Leda Selatan, Lamba Leda Utara dan Elar; bukti penerimaan PBP kecamatan tersebut dan status kecamatan gagal salur lainnya.", "bila_tidak": "Usulan tolak/tahan berlaku sesuai analisis; UM dikembalikan atau dipotong", "rujukan": "Analisis Non-Transporter: Tindak Lanjut B; Rekap Kab x Komp", "bukti": [{"nama": "Daftar titik bagi & BAST per desa, daftar PBP menerima, rekap bayar honor, dokumen yang membuktikan kecamatan tertagih", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Bukti pembayaran honor dan nilai yang dapat dikembalikan", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "B-03", "pihak": "BULOG", "judul": "KC Labuan Bajo – Manggarai Barat: titik bagi & honor yang dapat dikembalikan", "jenis": "biaya", "tahap": 4, "kab": ["Manggarai Barat"], "prioritas": "Sedang", "h": 5, "nilai": 41790974, "dasar": "Biaya non-transporter (dikelola Bulog dan satgas/petugas lapangan) atas wilayah gagal salur — Rp41.790.974 dari Rp84.173.615 ditagihkan.", "pertanyaan": "Daftar titik bagi pada kecamatan gagal salur; nilai honor yang sudah dibayarkan dan bisa dikembalikan.", "bila_tidak": "Usulan tolak/tahan berlaku sesuai analisis; UM dikembalikan atau dipotong", "rujukan": "Analisis Non-Transporter: Tindak Lanjut B; Rekap Kab x Komp", "bukti": [{"nama": "Daftar titik bagi & BAST per desa, daftar PBP menerima, rekap bayar honor, dokumen yang membuktikan kecamatan tertagih", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Bukti pembayaran honor dan nilai yang dapat dikembalikan", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "B-04", "pihak": "BULOG", "judul": "KC Ende: dasar tarif Rp558.000/titik & biaya Evaluasi Kanwil", "jenis": "biaya", "tahap": 4, "kab": ["Ende"], "prioritas": "Tinggi", "h": 5, "nilai": 36600900, "dasar": "Biaya non-transporter (dikelola Bulog dan satgas/petugas lapangan) atas wilayah gagal salur — Rp36.600.900 dari Rp181.253.399 ditagihkan.", "pertanyaan": "Dasar tarif Rp558.000/titik (uang makan Rp208.000); status pembayaran honor titik di kecamatan gagal salur; dasar biaya Evaluasi Kanwil Rp4,78 juta.", "bila_tidak": "Usulan tolak/tahan berlaku sesuai analisis; UM dikembalikan atau dipotong", "rujukan": "Analisis Non-Transporter: Tindak Lanjut B; Rekap Kab x Komp", "bukti": [{"nama": "Daftar titik bagi & BAST per desa, daftar PBP menerima, rekap bayar honor, dokumen yang membuktikan kecamatan tertagih", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Bukti pembayaran honor dan nilai yang dapat dikembalikan", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "B-05", "pihak": "BULOG", "judul": "KC Bajawa – Ngada & Nagekeo: pembagian biaya gabungan & pendamping", "jenis": "biaya", "tahap": 4, "kab": ["Ngada", "Nagekeo"], "prioritas": "Sedang", "h": 5, "nilai": 32805413, "dasar": "Biaya non-transporter (dikelola Bulog dan satgas/petugas lapangan) atas wilayah gagal salur — Rp32.805.413 dari Rp216.638.506 ditagihkan.", "pertanyaan": "Dasar pembagian biaya gabungan Ngada/Nagekeo; titik bagi Riung & Riung Barat; pendamping Nagekeo pada desa gagal.", "bila_tidak": "Usulan tolak/tahan berlaku sesuai analisis; UM dikembalikan atau dipotong", "rujukan": "Analisis Non-Transporter: Tindak Lanjut B; Rekap Kab x Komp", "bukti": [{"nama": "Daftar titik bagi & BAST per desa, daftar PBP menerima, rekap bayar honor, dokumen yang membuktikan kecamatan tertagih", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Bukti pembayaran honor dan nilai yang dapat dikembalikan", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "B-06", "pihak": "BULOG", "judul": "KC Maumere – Sikka: titik bagi tanpa desa gagal & biaya Evaluasi Kanwil", "jenis": "biaya", "tahap": 4, "kab": ["Sikka"], "prioritas": "Sedang", "h": 5, "nilai": 14345419, "dasar": "Biaya non-transporter (dikelola Bulog dan satgas/petugas lapangan) atas wilayah gagal salur — Rp14.345.419 dari Rp196.637.671 ditagihkan.", "pertanyaan": "Titik bagi di Kangae, Nelle, Paga, Palue, Tana Wawo (tanpa desa gagal 100%) – bukti penyaluran; pendamping/admin pada desa gagal; biaya Evaluasi Kanwil Rp4,33 juta.", "bila_tidak": "Usulan tolak/tahan berlaku sesuai analisis; UM dikembalikan atau dipotong", "rujukan": "Analisis Non-Transporter: Tindak Lanjut B; Rekap Kab x Komp", "bukti": [{"nama": "Daftar titik bagi & BAST per desa, daftar PBP menerima, rekap bayar honor, dokumen yang membuktikan kecamatan tertagih", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Bukti pembayaran honor dan nilai yang dapat dikembalikan", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "B-07", "pihak": "BULOG", "judul": "Kanwil NTT: mekanisme pengembalian UM / pemotongan pencairan berikutnya", "jenis": "biaya", "tahap": 4, "kab": [], "prioritas": "Sedang", "h": 7, "nilai": 57467338, "dasar": "Pencairan UM sudah sama dengan realisasi (saldo biaya distribusi Rp0), sehingga biaya yang ditolak harus dikembalikan atau diperhitungkan.", "pertanyaan": "Mekanisme pengembalian UM atau pemotongan pencairan berikutnya atas biaya yang ditolak (UM sudah sama dengan realisasi) dan kebijakan atas biaya persiapan yang telah dikeluarkan pada desa gagal salur.", "bila_tidak": "Koreksi dilakukan pada pencairan berikutnya", "rujukan": "Analisis Non-Transporter, temuan 12", "bukti": [{"nama": "Rencana dan jadwal pengembalian UM atau pemotongan pencairan", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Kebijakan atas biaya persiapan yang telah dikeluarkan di desa gagal salur", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "B-08", "pihak": "BULOG", "judul": "Bukti kegiatan persiapan, pendukung, sosialisasi & monev (ditahan)", "jenis": "biaya", "tahap": 4, "kab": [], "prioritas": "Tinggi", "h": 5, "nilai": 128971328, "dasar": "Porsi gagal salur atas koordinasi rencana salur, biaya pendukung, serta sosialisasi/monev tidak ditolak otomatis, tetapi ditahan sampai ada bukti kegiatan.", "pertanyaan": "Mohon bukti pelaksanaan kegiatan persiapan/pendukung dan penjelasan keterkaitannya dengan desa gagal salur, termasuk konfirmasi tidak ada duplikasi dengan biaya pendukung transporter.", "bila_tidak": "Dapat diusulkan ditolak 100% (total tolak non-transporter menjadi Rp186,4 juta)", "rujukan": "Analisis Non-Transporter: Ringkasan temuan 3, 6, 8", "bukti": [{"nama": "Notulen/undangan rapat koordinasi, daftar hadir, bukti cek kualitas dan rencana salur", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Nota/kuitansi ATK, atribut, lembur", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "bukti pemakaian", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Foto/daftar hadir sosialisasi & launching, laporan monev, dasar pembebanan evaluasi Kanwil", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "B-09", "pihak": "BULOG", "judul": "Posisi stok fisik & status beras gagal salur (gudang/titik bagi/dialihkan)", "jenis": "retur", "tahap": 2, "kab": [], "prioritas": "Tinggi", "h": 3, "nilai": null, "dasar": "Beras pada 853 desa/kel. (178.041 PBP) di 7 kab. fokus belum diserahkan. Bapanas (8 Okt 2026) menolak perpanjangan dan mengarahkan pemenuhan melalui skema bantuan bencana.", "pertanyaan": "Berapa kg beras gagal salur per kab. dan di mana posisinya saat ini? Apakah sudah ada BA Retur / penerimaan kembali di gudang, atau pengalihan ke bantuan bencana?", "bila_tidak": "Tagihan terkait ditahan sampai ada kejelasan peruntukan", "rujukan": "Transporter F-02; Tindak Lanjut JPL no. 1 & 3", "bukti": [{"nama": "Stok opname dan posisi fisik beras gagal salur per kab. (KC)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "BA Retur / bukti penerimaan kembali di gudang asal", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Dokumen alih peruntukan ke bantuan bencana (bila ada)", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "B-10", "pihak": "BULOG", "judul": "Pemutakhiran data gagal salur (cut-off 30 Sep 2026) & status verifikasi dokumen", "jenis": "gagal_salur", "tahap": 4, "kab": [], "prioritas": "Sedang", "h": 5, "nilai": null, "dasar": "Per verifikasi 22 Okt 2026, 122 dari 129 dokumen tagihan masih berstatus Belum Verifikasi. Daerah gagal salur memakai definisi 100%; desa gagal sebagian belum terhitung.", "pertanyaan": "Mohon pemutakhiran daftar desa gagal salur (termasuk gagal sebagian) dan hitung ulang porsi bila JPL/Dinas membuktikan penyaluran selesai (BAST PBP ada).", "bila_tidak": "Porsi gagal salur mengikuti data per 18 Okt 2026", "rujukan": "Transporter F-12, F-15; Matriks keputusan JPL no. 2", "bukti": [{"nama": "Daftar desa gagal salur terbaru per kab. (cut-off 30 Sep 2026)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Rekap PBP gagal salur per kelurahan", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Status verifikasi dokumen tagihan terbaru", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "B-11", "pihak": "BULOG", "judul": "Pernyataan tidak ada tagihan ganda (transporter, non-transporter, bantuan bencana)", "jenis": "biaya", "tahap": 4, "kab": [], "prioritas": "Sedang", "h": 7, "nilai": null, "dasar": "Biaya pendukung non-transporter berindikasi tumpang tindih dengan biaya pendukung transporter; biaya angkut yang sama tidak boleh ditagih ke BP dan skema bencana.", "pertanyaan": "Mohon pernyataan dan rekonsiliasi bahwa biaya yang sama tidak dibebankan ganda, serta daftar tagihan lanjutan yang direncanakan.", "bila_tidak": "Penolakan ganda/tagihan ganda dikoreksi oleh APIP", "rujukan": "Analisis Non-Transporter: langkah C.5; Tindak Lanjut JPL no. 3", "bukti": [{"nama": "Pernyataan tidak ada pembebanan ganda", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Rekonsiliasi biaya pendukung transporter vs non-transporter", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "D-01", "pihak": "DINAS_KAB", "judul": "Kab. Manggarai: konfirmasi 171 desa/kel. gagal salur (59.963 PBP)", "jenis": "gagal_salur", "tahap": 1, "kab": ["Manggarai"], "prioritas": "Tinggi", "h": 5, "nilai": 54808683, "dasar": "Data gagal salur: 171 desa/kel., 59.963 PBP (99,7% dari estimasi PBP kab.). Nilai terkait = usulan tolak transporter + porsi non-transporter atas wilayah gagal.", "pertanyaan": "Mohon penyebab gagal salur per desa, status PBP (pindah/meninggal/tidak ditemukan/menolak/pengungsi), posisi beras, dan rencana retur atau penggantian PBP. Seluruh kab. hampir gagal salur (pengungsi terbanyak, 20.333 jiwa) dan hanya premi asuransi yang ditagih. Mohon rencana penanganan beras dan PBP.", "bila_tidak": "Desa dicatat gagal salur tanpa dasar; tagihan wilayah tersebut ditolak", "rujukan": "Transporter F-01, F-13; Rekap Desa/Kecamatan", "bukti": [{"nama": "Daftar desa/kel. gagal salur beserta penyebab (cut-off 30 Sep 2026)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Berita acara kondisi lapangan / foto titik bagi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Daftar PBP tidak ditemukan, pindah, meninggal atau pengungsi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "BA Retur dan surat jalan retur (bila beras ditarik)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "SPTJM penggantian PBP dan daftar nominatif PBP pengganti (bila ada)", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "D-02", "pihak": "DINAS_KAB", "judul": "Kab. Manggarai Timur: konfirmasi 126 desa/kel. gagal salur (41.202 PBP)", "jenis": "gagal_salur", "tahap": 1, "kab": ["Manggarai Timur"], "prioritas": "Tinggi", "h": 5, "nilai": 232184930, "dasar": "Data gagal salur: 126 desa/kel., 41.202 PBP (74,4% dari estimasi PBP kab.). Nilai terkait = usulan tolak transporter + porsi non-transporter atas wilayah gagal.", "pertanyaan": "Mohon penyebab gagal salur per desa, status PBP (pindah/meninggal/tidak ditemukan/menolak/pengungsi), posisi beras, dan rencana retur atau penggantian PBP. Surat DKPP.526/237/IX/2026 (28 Sep 2026) menyatakan penyaluran belum selesai. Mohon juga bukti bahwa PBP di Kec. Lamba Leda Selatan, Lamba Leda Utara dan Elar benar menerima (honor petugas pelaksana Rp41,05 juta ditagihkan pada kecamatan yang tidak tercatat gagal salur).", "bila_tidak": "Desa dicatat gagal salur tanpa dasar; tagihan wilayah tersebut ditolak", "rujukan": "Transporter F-01, F-13; Rekap Desa/Kecamatan", "bukti": [{"nama": "Daftar desa/kel. gagal salur beserta penyebab (cut-off 30 Sep 2026)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Berita acara kondisi lapangan / foto titik bagi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Daftar PBP tidak ditemukan, pindah, meninggal atau pengungsi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "BA Retur dan surat jalan retur (bila beras ditarik)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "SPTJM penggantian PBP dan daftar nominatif PBP pengganti (bila ada)", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "D-03", "pihak": "DINAS_KAB", "judul": "Kab. Manggarai Barat: konfirmasi 160 desa/kel. gagal salur (32.548 PBP)", "jenis": "gagal_salur", "tahap": 1, "kab": ["Manggarai Barat"], "prioritas": "Tinggi", "h": 5, "nilai": 205763283, "dasar": "Data gagal salur: 160 desa/kel., 32.548 PBP (72,5% dari estimasi PBP kab.). Nilai terkait = usulan tolak transporter + porsi non-transporter atas wilayah gagal.", "pertanyaan": "Mohon penyebab gagal salur per desa, status PBP (pindah/meninggal/tidak ditemukan/menolak/pengungsi), posisi beras, dan rencana retur atau penggantian PBP. Gagal salur besar dan terdampak gempa Flores. Mohon rincian per kecamatan dan daftar titik bagi.", "bila_tidak": "Desa dicatat gagal salur tanpa dasar; tagihan wilayah tersebut ditolak", "rujukan": "Transporter F-01, F-13; Rekap Desa/Kecamatan", "bukti": [{"nama": "Daftar desa/kel. gagal salur beserta penyebab (cut-off 30 Sep 2026)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Berita acara kondisi lapangan / foto titik bagi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Daftar PBP tidak ditemukan, pindah, meninggal atau pengungsi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "BA Retur dan surat jalan retur (bila beras ditarik)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "SPTJM penggantian PBP dan daftar nominatif PBP pengganti (bila ada)", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "D-04", "pihak": "DINAS_KAB", "judul": "Kab. Ende: konfirmasi 164 desa/kel. gagal salur (22.791 PBP)", "jenis": "gagal_salur", "tahap": 1, "kab": ["Ende"], "prioritas": "Tinggi", "h": 5, "nilai": 220139502, "dasar": "Data gagal salur: 164 desa/kel., 22.791 PBP (45,2% dari estimasi PBP kab.). Nilai terkait = usulan tolak transporter + porsi non-transporter atas wilayah gagal.", "pertanyaan": "Mohon penyebab gagal salur per desa, status PBP (pindah/meninggal/tidak ditemukan/menolak/pengungsi), posisi beras, dan rencana retur atau penggantian PBP. Sekitar separuh PBP sudah tersalur sebelum batas. Mohon bukti PBP yang sudah menerima dan rincian desa gagal (termasuk wilayah kepulauan).", "bila_tidak": "Desa dicatat gagal salur tanpa dasar; tagihan wilayah tersebut ditolak", "rujukan": "Transporter F-01, F-13; Rekap Desa/Kecamatan", "bukti": [{"nama": "Daftar desa/kel. gagal salur beserta penyebab (cut-off 30 Sep 2026)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Berita acara kondisi lapangan / foto titik bagi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Daftar PBP tidak ditemukan, pindah, meninggal atau pengungsi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "BA Retur dan surat jalan retur (bila beras ditarik)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "SPTJM penggantian PBP dan daftar nominatif PBP pengganti (bila ada)", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "D-05", "pihak": "DINAS_KAB", "judul": "Kab. Nagekeo: konfirmasi 107 desa/kel. gagal salur (17.489 PBP)", "jenis": "gagal_salur", "tahap": 1, "kab": ["Nagekeo"], "prioritas": "Tinggi", "h": 5, "nilai": 72832875, "dasar": "Data gagal salur: 107 desa/kel., 17.489 PBP (83,5% dari estimasi PBP kab.). Nilai terkait = usulan tolak transporter + porsi non-transporter atas wilayah gagal.", "pertanyaan": "Mohon penyebab gagal salur per desa, status PBP (pindah/meninggal/tidak ditemukan/menolak/pengungsi), posisi beras, dan rencana retur atau penggantian PBP. Terdekat dari episentrum. Mohon konfirmasi status titik bagi Riung dan Riung Barat serta pendamping pada desa gagal.", "bila_tidak": "Desa dicatat gagal salur tanpa dasar; tagihan wilayah tersebut ditolak", "rujukan": "Transporter F-01, F-13; Rekap Desa/Kecamatan", "bukti": [{"nama": "Daftar desa/kel. gagal salur beserta penyebab (cut-off 30 Sep 2026)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Berita acara kondisi lapangan / foto titik bagi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Daftar PBP tidak ditemukan, pindah, meninggal atau pengungsi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "BA Retur dan surat jalan retur (bila beras ditarik)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "SPTJM penggantian PBP dan daftar nominatif PBP pengganti (bila ada)", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "D-06", "pihak": "DINAS_KAB", "judul": "Kab. Sikka: konfirmasi 50 desa/kel. gagal salur (3.633 PBP)", "jenis": "gagal_salur", "tahap": 1, "kab": ["Sikka"], "prioritas": "Sedang", "h": 5, "nilai": 69506847, "dasar": "Data gagal salur: 50 desa/kel., 3.633 PBP (8,5% dari estimasi PBP kab.). Nilai terkait = usulan tolak transporter + porsi non-transporter atas wilayah gagal.", "pertanyaan": "Mohon penyebab gagal salur per desa, status PBP (pindah/meninggal/tidak ditemukan/menolak/pengungsi), posisi beras, dan rencana retur atau penggantian PBP. Gagal salur hanya sekitar 8,5% tetapi tagihan angkutan besar. Mohon bukti penyaluran di titik bagi Kangae, Nelle, Paga, Palue dan Tana Wawo.", "bila_tidak": "Desa dicatat gagal salur tanpa dasar; tagihan wilayah tersebut ditolak", "rujukan": "Transporter F-01, F-13; Rekap Desa/Kecamatan", "bukti": [{"nama": "Daftar desa/kel. gagal salur beserta penyebab (cut-off 30 Sep 2026)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Berita acara kondisi lapangan / foto titik bagi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Daftar PBP tidak ditemukan, pindah, meninggal atau pengungsi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "BA Retur dan surat jalan retur (bila beras ditarik)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "SPTJM penggantian PBP dan daftar nominatif PBP pengganti (bila ada)", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "D-07", "pihak": "DINAS_KAB", "judul": "Kab. Ngada: konfirmasi 75 desa/kel. gagal salur (415 PBP)", "jenis": "gagal_salur", "tahap": 1, "kab": ["Ngada"], "prioritas": "Sedang", "h": 5, "nilai": 12850268, "dasar": "Data gagal salur: 75 desa/kel., 415 PBP (2,8% dari estimasi PBP kab.). Nilai terkait = usulan tolak transporter + porsi non-transporter atas wilayah gagal.", "pertanyaan": "Mohon penyebab gagal salur per desa, status PBP (pindah/meninggal/tidak ditemukan/menolak/pengungsi), posisi beras, dan rencana retur atau penggantian PBP. Dicantumkan terdampak, tetapi gagal salur hanya 415 PBP. Mohon rincian 415 PBP dan penyebabnya (dokumen tagihan Ngada terbit 8 Okt 2026).", "bila_tidak": "Desa dicatat gagal salur tanpa dasar; tagihan wilayah tersebut ditolak", "rujukan": "Transporter F-01, F-13; Rekap Desa/Kecamatan", "bukti": [{"nama": "Daftar desa/kel. gagal salur beserta penyebab (cut-off 30 Sep 2026)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Berita acara kondisi lapangan / foto titik bagi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Daftar PBP tidak ditemukan, pindah, meninggal atau pengungsi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "BA Retur dan surat jalan retur (bila beras ditarik)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "SPTJM penggantian PBP dan daftar nominatif PBP pengganti (bila ada)", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "D-08", "pihak": "DINAS_KAB", "judul": "Kab. Timor Tengah Utara: kronologi jadwal & dasar surat (Kota Kefamenanu)", "jenis": "gagal_salur", "tahap": 1, "kab": ["TTU"], "prioritas": "Rendah", "h": 5, "nilai": null, "dasar": "Jadwal 18 Agustus mendahului Berita Acara Koordinasi tanggal 20 Agustus; permohonan kolektif merujuk Surat Bapanas No. 307 sedangkan dokumen lain No. 308.", "pertanyaan": "Mohon klarifikasi urutan tanggal jadwal terhadap BA Koordinasi dan nomor surat Bapanas yang benar.", "bila_tidak": "Dicatat sebagai ketidaksesuaian dokumen", "rujukan": "Catatan dokumen, paparan cross-check slide 11", "bukti": [{"nama": "BA Koordinasi Rencana Salur TTU", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Surat Bapanas yang dirujuk (No. 307/308)", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Jadwal salur Kota Kefamenanu", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "D-09", "pihak": "DINAS_KAB", "judul": "Honor koordinasi (Belu, Malaka): kelengkapan bukti", "jenis": "biaya", "tahap": 4, "kab": ["Belu", "Malaka"], "prioritas": "Rendah", "h": 7, "nilai": null, "dasar": "Kelengkapan bukti honor koordinasi — dalam reviu APIP.", "pertanyaan": "Mohon kelengkapan bukti sesuai surat resmi.", "bila_tidak": "Mengikuti hasil reviu APIP", "rujukan": "Catatan dokumen, paparan cross-check slide 11", "bukti": [{"nama": "Bukti kelengkapan sesuai surat resmi", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": false, "judul_publik": "Honor koordinasi (Belu, Malaka): kelengkapan bukti"}, {"id": "P-01", "pihak": "DINAS_PROV", "judul": "Validasi & konsolidasi data gagal salur NTT (1.133 desa/kel.)", "jenis": "gagal_salur", "tahap": 1, "kab": [], "prioritas": "Tinggi", "h": 3, "nilai": null, "dasar": "NTT mencatat 1.133 desa/kel. gagal salur 100%; 853 desa/178.041 PBP (86,1%) berada di 7 kab. Flores. Rincian PBP sumber hanya memuat 65.535 dari 206.874 baris (batas .xls).", "pertanyaan": "Mohon validasi daftar desa gagal salur dari seluruh kab./kota, selisih data dengan Bulog, dan konfirmasi cut-off 30 Sep 2026.", "bila_tidak": "Analisis memakai data Bulog per 18 Okt 2026", "rujukan": "Transporter Ringkasan; F-15", "bukti": [{"nama": "Rekap gagal salur NTT per kab./kota tervalidasi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Berita acara rekonsiliasi data Dinas Provinsi – Bulog", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "P-02", "pihak": "DINAS_PROV", "judul": "Dasar surat Gubernur & status bencana Flores", "jenis": "gagal_salur", "tahap": 1, "kab": [], "prioritas": "Tinggi", "h": 3, "nilai": null, "dasar": "Surat Gubernur NTT No. BU.600-4.1/16/DPT/2026 diajukan 5 Okt 2026 (setelah batas 30 Sep); Bapanas No. 2788/TS.03.03/A/10/2026 (8 Okt) menolak perpanjangan. Nomor surat Gubernur dikutip dari rujukan Bapanas.", "pertanyaan": "Mohon salinan surat Gubernur lengkap dengan lampiran, dan dokumen penetapan status bencana/tanggap darurat Flores sebagai dasar keadaan kahar.", "bila_tidak": "Tidak ada pengecualian atas batas 30 Sep 2026", "rujukan": "Dasar Bapanas, bagian A & B", "bukti": [{"nama": "Salinan surat Gubernur NTT beserta lampiran", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "SK penetapan status bencana / tanggap darurat Flores", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Notulen Rakortas 7 Sep 2026 (bila ada)", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "P-03", "pihak": "DINAS_PROV", "judul": "Rencana pemenuhan PBP melalui skema bantuan bencana", "jenis": "retur", "tahap": 3, "kab": [], "prioritas": "Tinggi", "h": 5, "nilai": null, "dasar": "Bapanas mengarahkan pemenuhan beras terdampak ke mekanisme bantuan bencana/keadaan darurat, bukan perpanjangan BP.", "pertanyaan": "Apakah Pemda mengajukan bantuan bencana untuk PBP yang belum menerima? Bagaimana beras retur dialihkan dan dipastikan tidak ada pembebanan ganda?", "bila_tidak": "Beras gagal salur diproses sebagai retur ke gudang", "rujukan": "Dasar Bapanas, bagian E", "bukti": [{"nama": "Surat permohonan bantuan bencana/keadaan darurat", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Rencana alih peruntukan beras dan daftar nominatif penerima", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Pernyataan tidak ada pembebanan ganda", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "P-04", "pihak": "DINAS_PROV", "judul": "9 kab./kota gagal salur di luar surat Gubernur", "jenis": "gagal_salur", "tahap": 1, "kab": [], "prioritas": "Sedang", "h": 5, "nilai": 284986843, "dasar": "Sumba Barat Daya (87 desa, 21.324 PBP), Kota Kupang, Belu, Malaka, Kupang, TTS, Sabu Raijua, Rote Ndao dan Sumba Timur: total 280 desa/28.833 PBP tanpa dasar pengecualian dalam surat perpanjangan. Usulan tolak transporter Rp285,0 juta.", "pertanyaan": "Mohon penjelasan penyebab gagal salur di 9 kab./kota ini dan bukti bila terdapat keadaan khusus yang belum dilaporkan.", "bila_tidak": "Usulan tolak berlaku penuh tanpa pengecualian", "rujukan": "Dasar Bapanas, bagian D", "bukti": [{"nama": "Penyebab gagal salur per kab./kota", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Bukti keadaan khusus (bila ada)", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}, {"id": "P-05", "pihak": "DINAS_PROV", "judul": "Koordinasi jawaban Dinas Kab/Kota & rapat klarifikasi tripartit (H+7)", "jenis": "gagal_salur", "tahap": 4, "kab": [], "prioritas": "Sedang", "h": 7, "nilai": null, "dasar": "Rapat klarifikasi bersama JPL, Bulog Kanwil/KC dan APIP untuk menyepakati desa tersalur, pending dan ditolak. BAST rekonsiliasi tripartit ditandatangani setelah data final.", "pertanyaan": "Mohon konsolidasi jawaban seluruh Dinas Kab/Kota dan kehadiran pada rapat klarifikasi.", "bila_tidak": "Finalisasi nilai dilakukan tanpa masukan Dinas", "rujukan": "Tindak Lanjut JPL, langkah D (T+7 HK)", "bukti": [{"nama": "Rekap jawaban Dinas Kab/Kota", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Daftar hadir dan notulen rapat klarifikasi", "status": "belum", "url": "", "tgl": "", "publik": true}, {"nama": "Draf BAST rekonsiliasi tripartit", "status": "belum", "url": "", "tgl": "", "publik": true}], "status": "belum", "jawaban": "", "jawaban_publik": false, "tgl_respon": "", "oleh": "", "catatan_apip": "", "publik": true, "judul_publik": ""}]};
+const PIHAK = {
+  DINAS_KAB:{nama:'Dinas Ketahanan Pangan Kab/Kota', pendek:'Dinas Kab/Kota', c:'var(--p-kab)'},
+  DINAS_PROV:{nama:'Dinas Ketahanan Pangan Provinsi NTT', pendek:'Dinas Provinsi', c:'var(--p-prov)'},
+  TRANSPORTER:{nama:'Transporter (JPL)', pendek:'Transporter', c:'var(--p-tr)'},
+  BULOG:{nama:'Perum BULOG (Kanwil NTT & KC)', pendek:'BULOG', c:'var(--p-bul)'}
+};
+const STATUS = {
+  belum:{t:'Menunggu jawaban', cls:'idle', ic:'○'},
+  dijawab:{t:'Dijawab · menunggu verifikasi', cls:'info', ic:'◐'},
+  kurang:{t:'Bukti perlu dilengkapi', cls:'warn', ic:'△'},
+  terverifikasi:{t:'Terverifikasi APIP', cls:'ok', ic:'✓'}
+};
+const BSTATUS = {belum:'Belum ada', diunggah:'Diunggah', terverifikasi:'Terverifikasi'};
+const JENIS = {gagal_salur:'Gagal salur', retur:'Retur beras', biaya:'Tagihan/biaya'};
+const TAHAP = [
+  {n:1,t:'Identifikasi gagal salur',d:'Verifikasi PBP, desa dan posisi beras di lapangan'},
+  {n:2,t:'Verifikasi & BA Retur',d:'Beras ditarik ke gudang, BA Retur diterbitkan'},
+  {n:3,t:'Penggantian PBP (SPTJM)',d:'PBP pengganti ditetapkan atau beras dialihkan'},
+  {n:4,t:'Rekonsiliasi & BAST',d:'Rekonsiliasi akhir, tagihan, dan BAST tripartit'}
+];
+const LS = 'tl-gagal-salur-draft-v1';
+const UPLOAD_EMAIL = 'fajare384@gmail.com';
+const UPLOAD_ENDPOINT = 'https://formsubmit.co/' + UPLOAD_EMAIL;
+const MAX_MB = 8;
+const OK_EXT = ['pdf','jpg','jpeg','png','doc','docx','xls','xlsx','zip'];
+const LS_SENDER = 'tl-sender-v1', LS_RECEIPT = 'tl-receipts-v1';
+const q = new URLSearchParams(location.search);
+let admin = q.get('admin') === '1';
+let D = null;           // data aktif
+let F = {pihak:'', status:'', kab:'', tahap:0, cari:''};
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rp = n => 'Rp' + Math.round(n).toLocaleString('id-ID');
+const rpj = n => n >= 1e9 ? 'Rp' + (n/1e9).toLocaleString('id-ID',{maximumFractionDigits:2}) + ' miliar' : 'Rp' + (n/1e6).toLocaleString('id-ID',{maximumFractionDigits:1}) + ' juta';
+const nf = n => Math.round(n).toLocaleString('id-ID');
+const BLN = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const day = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const iso = d => d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const addDays = (s,n) => { const d = day(s); d.setDate(d.getDate()+n); return d; };
+const fmt = d => (typeof d==='string'?day(d):d).getDate()+' '+BLN[(typeof d==='string'?day(d):d).getMonth()]+' '+(typeof d==='string'?day(d):d).getFullYear();
+const diffDays = (a,b) => Math.round((a-b)/864e5);
+function today(){ const t = q.get('today'); return t ? day(t) : (()=>{const n=new Date(); return new Date(n.getFullYear(),n.getMonth(),n.getDate());})(); }
+
+/* ---------- data ---------- */
+async function load(){
+  let base = EMBEDDED;
+  try{ const r = await fetch('data/tindak-lanjut.json',{cache:'no-store'}); if(r.ok) base = await r.json(); }catch(e){}
+  D = base;
+  if(admin){ try{ const dr = localStorage.getItem(LS); if(dr) D = JSON.parse(dr); }catch(e){} }
+}
+function saveDraft(){
+  try{ localStorage.setItem(LS, JSON.stringify(D)); $('#draftState').textContent = 'Draf tersimpan ' + new Date().toLocaleTimeString('id-ID'); }catch(e){ $('#draftState').textContent = 'Draf tidak dapat disimpan di peramban ini; gunakan Unduh JSON.'; }
+}
+const T0 = () => D.meta.t0;
+const dueOf = it => addDays(T0(), it.h);
+const endWin = () => addDays(T0(), D.meta.jendela_hari);
+function isLate(it){ // jawaban masuk setelah tenggat
+  return it.tgl_respon && day(it.tgl_respon) > dueOf(it);
+}
+function isOverdue(it){ return (it.status==='belum' || it.status==='kurang') && today() > dueOf(it); }
+const showDetail = it => admin || it.publik !== false;
+
+/* ---------- render ---------- */
+function renderAll(){
+  $('#adminbar').hidden = !admin;
+  $('#catatan').textContent = D.meta.catatan;
+  $('#sumber').textContent = D.meta.sumber.join('; ');
+  $('#upd').textContent = fmt(D.meta.diperbarui);
+  renderWindow(); renderKpis(); renderParties(); renderTimeline(); renderKab(); renderSteps(); renderFilters(); renderList();
+}
+
+function renderWindow(){
+  const t = today(), end = endWin(), start = day(T0());
+  const left = diffDays(end, t);
+  let pill, big;
+  if(t < start){ pill = '<span class="pill idle">Belum dibuka</span>'; big = 'Dibuka ' + fmt(start); }
+  else if(left >= 0){ pill = '<span class="pill ok">Pemantauan berjalan</span>'; big = left === 0 ? 'Hari terakhir (H+7)' : 'H+' + diffDays(t,start) + ' · sisa ' + left + ' hari'; }
+  else { pill = '<span class="pill bad">Jendela H+7 berakhir</span>'; big = 'Ditutup ' + fmt(end); }
+  $('#window').innerHTML = `<div><div class="note">Periode pemantauan</div><div class="big">${esc(big)}</div></div>
+   <div>${pill}<div class="note" style="margin-top:6px">Surat konfirmasi (H+0): <b>${fmt(start)}</b> · Batas akhir (H+7): <b>${fmt(end)}</b></div></div>`;
+}
+
+function counts(list){
+  const c = {belum:0,dijawab:0,kurang:0,terverifikasi:0,overdue:0,total:list.length,bTot:0,bUp:0,bVer:0};
+  list.forEach(it=>{ c[it.status]++; if(isOverdue(it)) c.overdue++;
+    it.bukti.forEach(b=>{ c.bTot++; if(b.status!=='belum') c.bUp++; if(b.status==='terverifikasi') c.bVer++; }); });
+  return c;
+}
+
+function renderKpis(){
+  const r = D.ringkasan, all = counts(D.items);
+  const resp = all.total - all.belum;
+  const k = [
+    [nf(r.desa), 'desa/kelurahan gagal salur', '7 kab. fokus · 86,1% dari gagal salur NTT'],
+    [nf(r.pbp), 'PBP belum menerima beras', 'dari 1.133 desa gagal salur di seluruh NTT'],
+    [rpj(r.tolak_tr), 'usulan tolak tagihan transporter', 'dari tagihan kab. ' + rpj(r.tagihan_tr)],
+    [rpj(r.nt_tolak + r.nt_tahan), 'biaya non-transporter atas wilayah gagal', 'tolak ' + rpj(r.nt_tolak) + ' · tahan ' + rpj(r.nt_tahan)],
+    [resp + '/' + all.total, 'butir sudah direspons', all.terverifikasi + ' terverifikasi · ' + all.overdue + ' lewat tenggat']
+  ];
+  $('#kpis').innerHTML = k.map(x=>`<div class="card kpi"><div class="v">${esc(x[0])}</div><div class="l">${esc(x[1])}</div><div class="n">${esc(x[2])}</div></div>`).join('');
+}
+
+function segBar(c){
+  const t = c.total || 1;
+  return `<div class="bar" role="img" aria-label="${c.terverifikasi} terverifikasi, ${c.dijawab} dijawab, ${c.kurang} perlu dilengkapi, ${c.belum} menunggu">
+   <i class="s-terverifikasi" style="width:${c.terverifikasi/t*100}%"></i><i class="s-dijawab" style="width:${c.dijawab/t*100}%"></i><i class="s-kurang" style="width:${c.kurang/t*100}%"></i><i class="s-belum" style="width:${c.belum/t*100}%"></i></div>`;
+}
+function legend(c){
+  return `<div class="legend"><span><b class="s-terverifikasi"></b>${c.terverifikasi} terverifikasi</span><span><b class="s-dijawab"></b>${c.dijawab} dijawab</span><span><b class="s-kurang"></b>${c.kurang} kurang bukti</span><span><b class="s-belum"></b>${c.belum} menunggu</span></div>`;
+}
+function renderParties(){
+  $('#parties').innerHTML = Object.keys(PIHAK).map(k=>{
+    const list = D.items.filter(i=>i.pihak===k), c = counts(list), p = PIHAK[k];
+    const next = list.filter(i=>i.status==='belum'||i.status==='kurang').map(dueOf).sort((a,b)=>a-b)[0];
+    return `<button class="party" style="--c:${p.c}" data-p="${k}" aria-pressed="${F.pihak===k}">
+      <div class="nm">${esc(p.nama)}</div>
+      <div class="ct">${c.total} butir konfirmasi · bukti ${c.bUp}/${c.bTot} diunggah</div>
+      <div class="big">${Math.round((c.total-c.belum)/c.total*100)}%<span class="note" style="font-size:12px;font-weight:400"> sudah merespons</span></div>
+      ${segBar(c)}${legend(c)}
+      <div class="note" style="margin-top:8px">${c.overdue ? `<span class="late">${c.overdue} butir lewat tenggat</span>` : (next ? 'Tenggat terdekat: ' + fmt(next) : 'Seluruh butir sudah direspons')}</div></button>`;
+  }).join('');
+  document.querySelectorAll('.party').forEach(b=>b.onclick=()=>{ F.pihak = F.pihak===b.dataset.p ? '' : b.dataset.p; renderParties(); renderFilters(); renderList(); $('#h-list').scrollIntoView(); });
+}
+
+function renderTimeline(){
+  const t = today(), start = day(T0());
+  const ms = {0:'Surat konfirmasi dikirim ke 4 pihak',3:'Posisi fisik beras, data gagal salur, dasar tagihan',5:'Bukti utama: BAST, SPM, rekap kg, bukti bayar',7:'Rapat klarifikasi · batas pemantauan'};
+  let h = '';
+  for(let i=0;i<=7;i++){
+    const d = addDays(T0(), i), cls = (d < t ? 'past ' : '') + (iso(d)===iso(t) ? 'today ' : '') + (ms[i] ? 'ms' : '');
+    const n = D.items.filter(x=>x.h===i).length;
+    h += `<div class="d ${cls}"><b>H+${i}</b>${fmt(d).replace(/ \d{4}$/,'')}<span class="m">${ms[i] ? esc(ms[i]) : ''}${n ? `<br><span class="note">${n} tenggat butir</span>` : ''}</span></div>`;
+  }
+  $('#timeline').innerHTML = h;
+}
+
+function renderKab(){
+  const mx = Math.max(...D.kabupaten.map(k=>k.tolak_tr + k.nt_porsi_gagal));
+  let tb = `<thead><tr><th>Kabupaten</th><th style="text-align:left">KC Bulog</th><th>Desa gagal</th><th>PBP gagal</th><th>% gagal</th><th>Tolak transporter</th><th>Non-transporter: tolak</th><th>Non-transporter: tahan</th><th>Nilai (proporsi)</th><th>Butir</th></tr></thead><tbody>`;
+  D.kabupaten.forEach(k=>{
+    const its = D.items.filter(i=>i.kab.includes(k.nama)), c = counts(its), tot = k.tolak_tr + k.nt_porsi_gagal;
+    tb += `<tr><td><button class="chip" data-k="${esc(k.nama)}" aria-pressed="${F.kab===k.nama}">${esc(k.nama)}</button></td><td>${esc(k.kc)}</td><td>${nf(k.desa)}</td><td>${nf(k.pbp)}</td><td>${(k.persen*100).toLocaleString('id-ID',{maximumFractionDigits:1})}%</td>
+    <td>${rp(k.tolak_tr)}</td><td>${rp(k.nt_tolak)}</td><td>${rp(k.nt_tahan)}</td>
+    <td><div class="mini" style="width:${Math.max(tot/mx*100,6)}%;min-width:60px" title="Transporter vs non-transporter"><i class="c-tr" style="width:${k.tolak_tr/tot*100}%"></i><i class="c-nt" style="width:${k.nt_porsi_gagal/tot*100}%"></i></div></td>
+    <td>${c.total - c.belum}/${c.total}</td></tr>`;
+  });
+  const r = D.ringkasan;
+  tb += `</tbody><tfoot><tr><td>Total 7 kab.</td><td></td><td>${nf(r.desa)}</td><td>${nf(r.pbp)}</td><td></td><td>${rp(r.tolak_tr)}</td><td>${rp(r.nt_tolak)}</td><td>${rp(r.nt_tahan)}</td><td></td><td></td></tr></tfoot>`;
+  $('#kabTbl').innerHTML = tb;
+  $('#kabTbl').insertAdjacentHTML('afterend', '');
+  document.querySelectorAll('#kabTbl [data-k]').forEach(b=>b.onclick=()=>{ F.kab = F.kab===b.dataset.k ? '' : b.dataset.k; renderKab(); renderFilters(); renderList(); $('#h-list').scrollIntoView(); });
+  if(!document.getElementById('kabLeg')) $('#kabTbl').parentElement.insertAdjacentHTML('beforeend','<div class="legend" id="kabLeg" style="margin-top:10px"><span><b class="c-tr"></b>Tolak transporter</span><span><b class="c-nt"></b>Porsi non-transporter atas wilayah gagal (tolak + tahan)</span></div>');
+}
+
+function renderSteps(){
+  $('#steps').innerHTML = TAHAP.map(s=>`<button class="step" data-t="${s.n}" aria-pressed="${F.tahap===s.n}"><span class="no">${s.n}</span><span><b>${esc(s.t)}</b><span>${esc(s.d)} · ${D.items.filter(i=>i.tahap===s.n).length} butir</span></span></button>`).join('');
+  document.querySelectorAll('.step').forEach(b=>b.onclick=()=>{ const n = +b.dataset.t; F.tahap = F.tahap===n ? 0 : n; renderSteps(); renderFilters(); renderList(); $('#h-list').scrollIntoView(); });
+}
+
+function renderFilters(){
+  const kabs = [...new Set(D.items.flatMap(i=>i.kab))];
+  $('#filters').innerHTML =
+   `<button class="chip" data-p="" aria-pressed="${F.pihak===''}">Semua pihak</button>` +
+   Object.keys(PIHAK).map(k=>`<button class="chip" data-p="${k}" aria-pressed="${F.pihak===k}">${esc(PIHAK[k].pendek)}</button>`).join('') +
+   `<select class="field" id="fStatus" aria-label="Filter status"><option value="">Semua status</option>${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${F.status===k?'selected':''}>${v.t}</option>`).join('')}<option value="overdue" ${F.status==='overdue'?'selected':''}>Lewat tenggat</option></select>` +
+   `<select class="field" id="fKab" aria-label="Filter kabupaten"><option value="">Semua kabupaten</option>${kabs.map(k=>`<option ${F.kab===k?'selected':''}>${esc(k)}</option>`).join('')}</select>` +
+   `<input class="field" id="fCari" type="search" placeholder="Cari butir, kode, atau kata kunci…" value="${esc(F.cari)}" aria-label="Cari">` +
+   `<button class="btn" id="fReset">Atur ulang</button>`;
+  document.querySelectorAll('#filters [data-p]').forEach(b=>b.onclick=()=>{ F.pihak=b.dataset.p; renderParties(); renderFilters(); renderList(); });
+  $('#fStatus').onchange = e=>{ F.status=e.target.value; renderList(); };
+  $('#fKab').onchange = e=>{ F.kab=e.target.value; renderKab(); renderList(); };
+  $('#fCari').oninput = e=>{ F.cari=e.target.value; renderList(); };
+  $('#fReset').onclick = ()=>{ F={pihak:'',status:'',kab:'',tahap:0,cari:''}; renderParties(); renderKab(); renderSteps(); renderFilters(); renderList(); };
+}
+
+function pillStatus(it){
+  const s = STATUS[it.status];
+  let h = `<span class="pill ${s.cls}"><span aria-hidden="true">${s.ic}</span>${s.t}</span>`;
+  if(isOverdue(it)) h += ` <span class="pill bad">Lewat tenggat</span>`;
+  else if(isLate(it)) h += ` <span class="pill warn">Dijawab terlambat</span>`;
+  return h;
+}
+function filtered(){
+  const k = F.cari.trim().toLowerCase();
+  return D.items.filter(i=>
+    (!F.pihak || i.pihak===F.pihak) &&
+    (!F.status || (F.status==='overdue' ? isOverdue(i) : i.status===F.status)) &&
+    (!F.kab || i.kab.includes(F.kab)) && (!F.tahap || i.tahap===F.tahap) &&
+    (!k || (i.id+' '+i.judul+' '+(showDetail(i)?i.dasar+' '+i.pertanyaan:'')).toLowerCase().includes(k)));
+}
+function renderList(){
+  const list = filtered().sort((a,b)=>a.h-b.h || a.id.localeCompare(b.id));
+  $('#listSub').textContent = list.length + ' dari ' + D.items.length + ' butir ditampilkan. Urut berdasarkan tenggat.';
+  if(!list.length){ $('#list').innerHTML = '<div class="card empty">Tidak ada butir yang cocok dengan filter.</div>'; return; }
+  const openIds = new Set([...document.querySelectorAll('#list details[open]')].map(d=>d.dataset.id));
+  $('#list').innerHTML = list.map(it=>itemHtml(it, openIds.has(it.id))).join('');
+  if(admin) bindAdmin(); else bindUpload();
+}
+
+function bukHtml(it){
+  return it.bukti.map((b,i)=>{
+    const st = `<span class="pill ${b.status==='terverifikasi'?'ok':b.status==='diunggah'?'info':'idle'}">${BSTATUS[b.status]}</span>`;
+    const linkOk = b.url && (admin || (b.publik && it.status!=='belum'));
+    const link = linkOk ? ` <a href="${esc(b.url)}" target="_blank" rel="noopener">Buka berkas</a>${b.tgl?` <span class="note">(${fmt(b.tgl)})</span>`:''}` : (b.url && !admin ? ' <span class="note">menunggu persetujuan tayang</span>' : '');
+    const up = (!admin && uploadOpen()) ? ` <button type="button" class="mini-btn" data-up="${i}" data-it="${it.id}">Unggah</button>` : '';
+    return `<li><span>${esc(b.nama)}${link}</span><span class="st">${up} ${st}</span></li>`;
+  }).join('');
+}
+function itemHtml(it, open){
+  const p = PIHAK[it.pihak], detail = showDetail(it);
+  const due = dueOf(it);
+  const ansPub = admin || it.jawaban_publik;
+  const ans = it.jawaban
+    ? (ansPub ? `<div class="ans">${esc(it.jawaban)}</div><div class="note" style="margin-top:4px">${it.oleh?esc(it.oleh)+' · ':''}${it.tgl_respon?'Dijawab '+fmt(it.tgl_respon):''} ${isLate(it)?'<span class="late">· melewati tenggat</span>':''}</div>`
+                : `<div class="ans note">Jawaban telah diterima dan sedang direviu APIP sebelum ditayangkan.</div>`)
+    : `<div class="ans note">Belum ada jawaban. Tenggat ${fmt(due)} (H+${it.h}).</div>`;
+  const apipNote = it.catatan_apip && (admin || it.jawaban_publik) ? `<div><div class="lab">Catatan APIP</div><div class="ans">${esc(it.catatan_apip)}</div></div>` : '';
+  const title = detail ? it.judul : (it.judul_publik || 'Butir dalam reviu APIP');
+  return `<details class="item" style="--c:${p.c}" data-id="${it.id}" ${open?'open':''}>
+   <summary><div><div class="t"><span class="code">${it.id}</span> · ${esc(title)}</div>
+     <div class="meta"><span>${esc(p.pendek)}</span><span>${JENIS[it.jenis]}</span><span>Tahap ${it.tahap}</span><span>Tenggat <b>${fmt(due)}</b> (H+${it.h})</span>${it.nilai?`<span>${rp(it.nilai)}</span>`:''}${it.kab.length?`<span>${esc(it.kab.join(', '))}</span>`:''}<span>Bukti ${it.bukti.filter(b=>b.status!=='belum').length}/${it.bukti.length}</span></div></div>
+     <div class="pills" data-pills>${pillStatus(it)}</div></summary>
+   <div class="body">
+     <div class="cols">
+       <div><div class="lab">Dasar temuan</div><div>${esc(it.dasar)}</div>${it.rujukan?`<div class="note" style="margin-top:4px">Rujukan: ${esc(it.rujukan)}</div>`:''}</div>
+       <div><div class="lab">Pertanyaan konfirmasi</div><div>${esc(it.pertanyaan)}</div>${it.bila_tidak?`<div class="note" style="margin-top:4px">Bila tidak dapat dibuktikan: ${esc(it.bila_tidak)}</div>`:''}</div>
+     </div>
+     <div><div class="lab">Bukti dukung yang diminta</div><ul class="ev" data-ev>${bukHtml(it)}</ul></div>
+     <div><div class="lab">Jawaban pihak terkait</div>${ans}</div>
+     ${apipNote}
+     ${admin ? adminForm(it) : uploadHtml(it)}
+   </div></details>`;
+}
+
+/* ---------- unggah bukti ---------- */
+const uploadOpen = () => today() <= endWin();
+function getJSON(k, d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d; }catch(e){ return d; } }
+function uploadHtml(it){
+  const sd = getJSON(LS_SENDER, {});
+  const rc = getJSON(LS_RECEIPT, []).filter(r=>r.id===it.id);
+  const rcHtml = rc.length ? `<div class="note"><b>Riwayat pengiriman dari peramban ini:</b><br>${rc.map(r=>`${esc(r.no)} · ${esc(r.bukti)} · ${esc(r.file)} · ${esc(r.waktu)}`).join('<br>')}</div>` : '';
+  if(!uploadOpen()) return `<div class="upl" aria-disabled="true"><div class="lab">Unggah bukti dukung</div><div class="msg bad">Jendela pengiriman bukti H+7 telah ditutup pada ${fmt(endWin())}. Hubungi Inspektorat bila ada keadaan khusus.</div>${rcHtml}</div>`;
+  return `<form class="upl" data-upl="${it.id}" method="POST" action="${UPLOAD_ENDPOINT}" enctype="multipart/form-data" target="upl-frame" novalidate>
+    <div class="lab">Unggah bukti dukung konfirmasi ${it.id}</div>
+    <div class="note">Berkas dikirim otomatis ke Inspektorat melalui email. Pilih berkas yang diminta, lalu pilih file (${OK_EXT.join(', ')}; maks. ${MAX_MB} MB). Jangan mengunggah data pribadi PBP (NIK, rekening) yang tidak diperlukan.</div>
+    <div class="row">
+      <label>Berkas yang diminta<select class="field" name="Berkas_diminta" data-u="bukti">${it.bukti.map((b,i)=>`<option value="${i}">${esc(b.nama)}</option>`).join('')}</select></label>
+      <label>File bukti<input class="field" type="file" name="attachment" data-u="file" accept=".${OK_EXT.join(',.')}"></label>
+    </div>
+    <div class="row">
+      <label>Nama pengirim<input class="field" name="Nama_pengirim" data-u="nama" value="${esc(sd.nama||'')}" autocomplete="name" required></label>
+      <label>Jabatan &amp; instansi<input class="field" name="Instansi" data-u="inst" value="${esc(sd.inst||'')}" placeholder="mis. Kabid, Dinas Ketahanan Pangan Kab. …" required></label>
+      <label>Email / No. HP<input class="field" name="Kontak" data-u="kontak" value="${esc(sd.kontak||'')}" required></label>
+    </div>
+    <label>Catatan (opsional)<textarea class="field" name="Catatan" rows="2"></textarea></label>
+    <input type="hidden" name="Kode_butir" value="${it.id}">
+    <input type="hidden" name="Butir" value="${esc(it.judul_publik||it.judul)}">
+    <input type="hidden" name="Pihak" value="${esc(PIHAK[it.pihak].nama)}">
+    <input type="hidden" name="Nama_berkas_diminta" data-u="bnama" value="">
+    <input type="hidden" name="Nomor_tanda_terima" data-u="no" value="">
+    <input type="hidden" name="_subject" value="[Bukti Dukung] ${it.id} - ${esc(it.judul_publik||it.judul)}">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+    <button class="btn pri go" type="submit">Kirim bukti</button>
+    <div data-u="msg" aria-live="polite"></div>
+    ${rcHtml}
+  </form>`;
+}
+function bindUpload(){
+  document.querySelectorAll('[data-up]').forEach(btn=>btn.onclick = ()=>{
+    const f = document.querySelector(`[data-upl="${btn.dataset.it}"]`); if(!f) return;
+    f.querySelector('[data-u=bukti]').value = btn.dataset.up; f.scrollIntoView({block:'center'}); f.querySelector('[data-u=file]').focus();
+  });
+  document.querySelectorAll('form[data-upl]').forEach(f=>{
+    const g = k => f.querySelector(`[data-u=${k}]`), show = (c,m)=>{ g('msg').innerHTML = `<div class="msg ${c}">${m}</div>`; };
+    f.addEventListener('submit', e=>{
+      const file = g('file').files[0], it = D.items.find(x=>x.id===f.dataset.upl);
+      const bad = m => { e.preventDefault(); show('bad', m); };
+      if(!uploadOpen()) return bad('Jendela pengiriman H+7 telah ditutup.');
+      if(!file) return bad('Pilih file bukti terlebih dahulu.');
+      const ext = file.name.split('.').pop().toLowerCase();
+      if(!OK_EXT.includes(ext)) return bad('Jenis file tidak diizinkan. Gunakan: ' + OK_EXT.join(', ') + '.');
+      if(file.size > MAX_MB*1048576) return bad('Ukuran file ' + (file.size/1048576).toFixed(1) + ' MB melebihi batas ' + MAX_MB + ' MB. Kompres atau pecah berkas.');
+      if(!g('nama').value.trim() || !g('inst').value.trim() || !g('kontak').value.trim()) return bad('Lengkapi nama, jabatan/instansi, dan kontak pengirim.');
+      const bi = +g('bukti').value, no = it.id + '-' + new Date().toISOString().replace(/\D/g,'').slice(2,14);
+      g('bnama').value = it.bukti[bi].nama; g('no').value = no;
+      try{ localStorage.setItem(LS_SENDER, JSON.stringify({nama:g('nama').value, inst:g('inst').value, kontak:g('kontak').value})); }catch(_){}
+      f._pending = {id:it.id, no, bukti:it.bukti[bi].nama, file:file.name, waktu:new Date().toLocaleString('id-ID')};
+      show('info', 'Mengirim ' + esc(file.name) + '… jangan tutup halaman.');
+      f.querySelector('.go').disabled = true;
+      const fr = document.getElementById('upl-frame');
+      fr.onload = ()=>{
+        const rc = getJSON(LS_RECEIPT, []); rc.push(f._pending);
+        try{ localStorage.setItem(LS_RECEIPT, JSON.stringify(rc.slice(-100))); }catch(_){}
+        show('ok', 'Berkas terkirim ke email Inspektorat. Nomor tanda terima: <b>' + esc(f._pending.no) + '</b>. Simpan nomor ini. Status baru tampil di halaman setelah diverifikasi Admin APIP.');
+        f.querySelector('.go').disabled = false; g('file').value = '';
+        fr.onload = null;
+      };
+    });
+  });
+}
+/* ---------- admin ---------- */
+function adminForm(it){
+  const opt = (obj, v) => Object.entries(obj).map(([k,x])=>`<option value="${k}" ${v===k?'selected':''}>${typeof x==='string'?x:x.t}</option>`).join('');
+  return `<div class="adm" data-adm="${it.id}"><div class="lab" style="color:var(--brand)">Panel Admin APIP · ${it.id}</div>
+   <div class="row">
+     <label>Status<select class="field" data-f="status">${opt(STATUS, it.status)}</select></label>
+     <label>Tanggal jawaban diterima<input class="field" type="date" data-f="tgl_respon" value="${esc(it.tgl_respon)}"></label>
+     <label>Disampaikan oleh<input class="field" data-f="oleh" value="${esc(it.oleh)}" placeholder="Nama/jabatan, instansi"></label>
+   </div>
+   <label>Ringkasan jawaban<textarea class="field" data-f="jawaban">${esc(it.jawaban)}</textarea></label>
+   <label style="grid-template-columns:auto 1fr;align-items:center;gap:8px"><input type="checkbox" data-f="jawaban_publik" ${it.jawaban_publik?'checked':''}> Tayangkan jawaban &amp; catatan ke publik</label>
+   <label>Catatan APIP<textarea class="field" data-f="catatan_apip">${esc(it.catatan_apip)}</textarea></label>
+   <div class="lab">Bukti dukung (isi tautan atau path berkas di repositori, mis. <code>bukti/${it.id}/nama-berkas.pdf</code>)</div>
+   ${it.bukti.map((b,i)=>`<div class="evrow" data-b="${i}"><span class="nm">${esc(b.nama)}</span>
+      <select class="field" data-bf="status">${opt(BSTATUS,b.status)}</select>
+      <input class="field" data-bf="url" value="${esc(b.url)}" placeholder="bukti/${it.id}/berkas.pdf atau https://…">
+      <label style="grid-template-columns:auto auto;gap:6px;align-items:center"><input type="checkbox" data-bf="publik" ${b.publik?'checked':''}>Tayang</label></div>`).join('')}
+  </div>`;
+}
+function bindAdmin(){
+  document.querySelectorAll('[data-adm]').forEach(box=>{
+    const it = D.items.find(x=>x.id===box.dataset.adm);
+    const upd = ()=>{
+      saveDraft();
+      const d = box.closest('details');
+      d.querySelector('[data-pills]').innerHTML = pillStatus(it);
+      d.querySelector('[data-ev]').innerHTML = bukHtml(it);
+      renderKpis(); renderParties(); renderKab();
+    };
+    box.querySelectorAll('[data-f]').forEach(el=>{
+      const ev = el.type==='checkbox'||el.tagName==='SELECT'||el.type==='date' ? 'change' : 'input';
+      el.addEventListener(ev, ()=>{
+        it[el.dataset.f] = el.type==='checkbox' ? el.checked : el.value;
+        if(el.dataset.f==='jawaban' && el.value && it.status==='belum'){ it.status='dijawab'; box.querySelector('[data-f=status]').value='dijawab'; if(!it.tgl_respon){ it.tgl_respon = iso(today()); box.querySelector('[data-f=tgl_respon]').value = it.tgl_respon; } }
+        upd();
+      });
+    });
+    box.querySelectorAll('[data-b]').forEach(row=>{
+      const b = it.bukti[+row.dataset.b];
+      row.querySelectorAll('[data-bf]').forEach(el=>{
+        el.addEventListener(el.type==='checkbox'||el.tagName==='SELECT'?'change':'input', ()=>{
+          b[el.dataset.bf] = el.type==='checkbox' ? el.checked : el.value;
+          if(el.dataset.bf==='url' && el.value && b.status==='belum'){ b.status='diunggah'; row.querySelector('select').value='diunggah'; b.tgl = iso(today()); }
+          upd();
+        });
+      });
+    });
+  });
+}
+$('#btnExport').onclick = ()=>{
+  D.meta.diperbarui = iso(today());
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(D,null,1)],{type:'application/json'}));
+  a.download = 'tindak-lanjut.json'; a.click(); URL.revokeObjectURL(a.href);
+};
+$('#btnReset').onclick = ()=>{ if(confirm('Hapus draf lokal dan kembali ke data yang tayang?')){ try{localStorage.removeItem(LS);}catch(e){} location.reload(); } };
+$('#fileImport').onchange = e=>{
+  const f = e.target.files[0]; if(!f) return;
+  f.text().then(t=>{
+    const j = JSON.parse(t);
+    if(j.internal){ // detail butir yang tidak diunggah ke repo
+      j.items.forEach(x=>{ const it = D.items.find(i=>i.id===x.id); if(it){ Object.assign(it, {judul:x.judul, dasar:x.dasar, pertanyaan:x.pertanyaan, bila_tidak:x.bila_tidak, bukti:x.bukti.map(b=>Object.assign(b,{publik:false}))}); } });
+    } else if(j.items && j.meta){ D = j; }
+    saveDraft(); renderAll();
+  }).catch(()=>alert('Berkas JSON tidak valid.'));
+};
+
+/* ---------- tema ---------- */
+$('#btnTheme').onclick = ()=>{
+  const cur = document.documentElement.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const nx = cur==='dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', nx);
+  try{ localStorage.setItem('tl-theme', nx); }catch(e){}
+};
+try{ const t = localStorage.getItem('tl-theme'); if(t) document.documentElement.setAttribute('data-theme', t); }catch(e){}
+
+load().then(renderAll).catch(e=>{ document.body.insertAdjacentHTML('afterbegin','<p style="padding:20px">Data gagal dimuat.</p>'); console.error(e); });
+</script>
+</body>
+</html>
